@@ -1,0 +1,46 @@
+#define BLYNK_TEMPLATE_ID "TMPL37hk_f89X"
+#define BLYNK_TEMPLATE_NAME "Vibrate Sensor Based Air Pump Control"
+#define BLYNK_PRINT Serial
+#include <BlynkSimpleEsp8266.h>
+#include <ESP8266WiFi.h>
+char auth[] = "3GS11uQ1w89rfwpz3AH3wVg51x6a2P09";
+const char* ssid = "Esp8266";        // Your Wi-Fi network SSID
+const char* password = "123123123";  // Your Wi-Fi network password
+int vibrate_sensor = A0;
+int motor = D1;
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(vibrate_sensor, INPUT);
+  pinMode(motor, OUTPUT);
+  Serial.println("Connecting to Wi-Fi...");
+  WiFi.begin(ssid, password);
+  // Wait for the Wi-Fi connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+Blynk.begin(auth, ssid, password);
+ digitalWrite(motor, LOW);
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+  int sensor = analogRead(vibrate_sensor);
+  Serial.print("sensor");
+  Serial.println(sensor);
+  if (sensor > 1000) {
+    digitalWrite(motor, HIGH);
+    Blynk.virtualWrite(V1, "DETECTED");  // Send "Detected" to V1 in the Blynk app
+    Blynk.virtualWrite(V0, "ON");        // Send "Detected" to V1 in the Blynk app
+    delay(5000);
+    digitalWrite(motor, LOW);
+    Blynk.virtualWrite(V0, "OFF");  // Send "Detected" to V1 in the Blynk app
+  } else {
+    digitalWrite(motor, LOW);
+    Blynk.virtualWrite(V1, "NOT DETECTED");  // Send "Not Detected" to V1 in the Blynk app
+    Blynk.virtualWrite(V0, "OFF");           // Send "Detected" to V1 in the Blynk app
+  }
+  delay(500);
+  Blynk.run();
+  delay(500);
+}
